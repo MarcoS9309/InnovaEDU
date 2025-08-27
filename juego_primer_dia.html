@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Primer Día - Juego Interactivo</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef, #fecfef, #a8e6cf);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes sparkle {
+            0% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0); }
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-item {
+            position: absolute;
+            font-size: 2em;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.3;
+        }
+        
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 3px solid #ffd700;
+            position: relative;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #a8e6cf, #dcedc8);
+            border-radius: 25px;
+            z-index: -1;
+            animation: sparkle 3s ease-in-out infinite;
+        }
+        
+        h1 {
+            color: #4169E1;
+            text-align: center;
+            font-size: 2.8em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: heartbeat 2s ease-in-out infinite;
+        }
+        
+        .story-text {
+            font-size: 1.3em;
+            line-height: 1.7;
+            margin: 25px 0;
+            color: #333;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+        }
+        
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin: 35px 0;
+        }
+        
+        button {
+            padding: 18px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.4s;
+            font-family: 'Comic Sans MS', cursive;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        .emoji {
+            font-size: 4em;
+            text-align: center;
+            margin: 25px 0;
+            animation: float 4s ease-in-out infinite;
+            filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.2));
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 1.4em;
+            color: #4169E1;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .choice-feedback {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.1em;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .choice-feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .character-mood {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .mood-happy { background: linear-gradient(135deg, #a8e6cf, #dcedc8); color: #2e7d32; }
+        .mood-nervous { background: linear-gradient(135deg, #ffd3a5, #fd9853); color: #e65100; }
+        .mood-brave { background: linear-gradient(135deg, #a18cd1, #fbc2eb); color: #6a1b9a; }
+    </style>
+</head>
+<body>
+    <div class="floating-elements" id="floating-elements"></div>
+    
+    <div class="container">
+        <h1>🎒 Mi Primer Día 🏫</h1>
+        
+        <div class="progress-bar" id="progress-bar" style="display: none;">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        
+        <div id="game-content">
+            <div class="story-text">
+                ¡Hola! Soy Santiago y hoy es mi primer día de escuela. 
+                ¿Me ayudas a tomar las mejores decisiones?
+            </div>
+            <div class="emoji">😊</div>
+            <div class="choices">
+                <button onclick="startGame()">¡Empezar la aventura!</button>
+            </div>
+        </div>
+        
+        <div class="choice-feedback" id="feedback"></div>
+        <div class="character-mood" id="mood"></div>
+        
+        <div class="score" id="score" style="display: none;">
+            Puntos de valentía: <span id="points">0</span> ⭐
+        </div>
+    </div></body>
+
+    <script>
+        let currentScene = 0;
+        let points = 0;
+        
+        const scenes = [
+            {
+                text: "Mamá está ajustando tu mochila de dinosaurios. Sientes mariposas en el estómago. ¿Qué haces?",
+                emoji: "😰",
+                mood: "nervous",
+                moodText: "Santiago se siente nervioso... 🦋",
+                choices: [
+                    {text: "🗣️ Le digo a mamá que tengo miedo", points: 2, feedback: "¡Qué valiente eres al expresar tus sentimientos!", sound: "brave", next: 1},
+                    {text: "😔 Finjo que estoy bien", points: 1, feedback: "A veces es difícil mostrar cómo nos sentimos", sound: "neutral", next: 1},
+                    {text: "🤗 Le pido que me abrace", points: 3, feedback: "Los abrazos de mamá son mágicos ✨", sound: "happy", next: 1}
+                ]
+            },
+            {
+                text: "Llegaste al colegio y ves un océano de niños corriendo y jugando. ¿Qué te llama la atención?",
+                emoji: "🏫",
+                mood: "nervous",
+                moodText: "El patio se ve enorme... 👀",
+                choices: [
+                    {text: "🤝 Me acerco a mamá y observo", points: 1, feedback: "Es normal sentirse pequeño en un lugar nuevo", sound: "neutral", next: 2},
+                    {text: "👁️ Observo todo con curiosidad", points: 2, feedback: "¡Qué observador! Hay mucho que descubrir", sound: "curious", next: 2},
+                    {text: "👋 Saludo a alguien con una sonrisa", points: 3, feedback: "¡Tu sonrisa puede alegrar el día de alguien más!", sound: "happy", next: 2}
+                ]
+            },
+            {
+                text: "Miss Carmen aparece con su delantal colorido y ojos gentiles como los de la abuela. ¿Cómo reaccionas?",
+                emoji: "👩‍🏫",
+                mood: "curious",
+                moodText: "Miss Carmen parece muy amable 🌟",
+                choices: [
+                    {text: "😊 La saludo tímidamente", points: 2, feedback: "Un saludo tímido también es valiente", sound: "shy", next: 3},
+                    {text: "🙈 Me escondo detrás de mamá", points: 1, feedback: "Mamá siempre te protege cuando lo necesitas", sound: "scared", next: 3},
+                    {text: "😄 Le sonrío y digo 'Hola, soy Santiago'", points: 3, feedback: "¡Qué presentación tan perfecta! 🌟", sound: "confident", next: 3}
+                ]
+            },
+            {
+                text: "Es hora de que mamá se vaya. Te abraza fuerte y hueles su perfume de vainilla. ¿Qué haces?",
+                emoji: "🤗",
+                mood: "emotional",
+                moodText: "Este momento es muy especial... 💝",
+                choices: [
+                    {text: "😢 Lloro un poquito pero soy valiente", points: 3, feedback: "¡Eres súper valiente! Los héroes también lloran", sound: "brave", next: 4},
+                    {text: "😰 No la dejo ir", points: 1, feedback: "Es difícil separarse de quienes amamos", sound: "clingy", next: 4},
+                    {text: "❤️ Le susurro 'Te amo, mamá'", points: 3, feedback: "Las palabras de amor son el mejor regalo", sound: "loving", next: 4}
+                ]
+            },
+            {
+                text: "Un niño de cabello rizado se acerca con su camión de bomberos rojo. ¡Se ve genial! ¿Qué haces?",
+                emoji: "🚒",
+                mood: "curious",
+                moodText: "¡Una oportunidad de hacer amigos! 🤝",
+                choices: [
+                    {text: "🤔 Le pregunto sobre su camión", points: 3, feedback: "¡Excelente manera de iniciar una amistad!", sound: "friendly", next: 5},
+                    {text: "😶 Me quedo callado observando", points: 1, feedback: "A veces necesitamos tiempo para sentirnos cómodos", sound: "quiet", next: 5},
+                    {text: "🧸 Le cuento sobre mi osito café", points: 3, feedback: "¡Compartir es una forma hermosa de conectar!", sound: "sharing", next: 5}
+                ]
+            },
+            {
+                text: "¡Es recreo! El patio está lleno de aventuras esperándote. ¿Dónde quieres ir?",
+                emoji: "🛝",
+                mood: "excited",
+                moodText: "¡Hora de explorar y divertirse! 🎉",
+                choices: [
+                    {text: "🏰 Al arenero a construir castillos", points: 2, feedback: "¡Eres todo un arquitecto de arena!", sound: "creative", next: 6},
+                    {text: "⛳ A los columpios a volar alto", points: 2, feedback: "¡Qué sensación de libertad!", sound: "playful", next: 6},
+                    {text: "🤗 Ayudo a consolar a un niño que llora", points: 3, feedback: "¡Tienes un corazón de oro! 💛", sound: "kind", next: 6}
+                ]
+            },
+            {
+                text: "¡Mamá regresó! Corre hacia ti con los brazos abiertos. ¡Tienes tanto que contarle! ¿Qué le dices?",
+                emoji: "🥰",
+                mood: "happy",
+                moodText: "¡El reencuentro más dulce del mundo! 🌈",
+                choices: [
+                    {text: "🎉 '¡Fue increíble! Hice nuevos amigos'", points: 3, feedback: "¡Qué día tan maravilloso viviste!", sound: "excited", next: 7},
+                    {text: "😊 'Estuvo bien, mamá'", points: 1, feedback: "Tranquilo y sereno, así eres tú", sound: "calm", next: 7},
+                    {text: "🤩 '¡Mamá, quiero volver mañana!'", points: 3, feedback: "¡Conquistaste tu primer día como un campeón!", sound: "enthusiastic", next: 7}
+                ]
+            }
+        ];
+        
+        const feedbackMessages = {
+            happy: ["¡Fantástico!", "¡Genial!", "¡Maravilloso!"],
+            brave: ["¡Qué valiente!", "¡Increíble coraje!", "¡Eres un héroe!"],
+            kind: ["¡Qué bondadoso!", "¡Tienes un gran corazón!", "¡Muy noble!"]
+        };
+        
+        function createFloatingElements() {
+            const container = document.getElementById('floating-elements');
+            const elements = ['🎈', '⭐', '🦋', '🌈', '🎨', '📚', '✨', '🌸'];
+            
+            for (let i = 0; i < 8; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-item';
+                element.textContent = elements[i];
+                element.style.left = Math.random() * 100 + '%';
+                element.style.top = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 6 + 's';
+                container.appendChild(element);
+            }
+        }
+        
+        function startGame() {
+            currentScene = 0;
+            points = 0;
+            document.getElementById('score').style.display = 'block';
+            document.getElementById('progress-bar').style.display = 'block';
+            createFloatingElements();
+            updatePoints();
+            updateProgress();
+            showScene();
+        }
+        
+        function showScene() {
+            if (currentScene >= scenes.length) {
+                showEnding();
+                return;
+            }
+            
+            const scene = scenes[currentScene];
+            const content = document.getElementById('game-content');
+            
+            // Update mood
+            const moodElement = document.getElementById('mood');
+            moodElement.textContent = scene.moodText;
+            moodElement.className = `character-mood mood-${scene.mood}`;
+            
+            content.innerHTML = `
+                <div class="story-text">${scene.text}</div>
+                <div class="emoji">${scene.emoji}</div>
+                <div class="choices">
+                    ${scene.choices.map((choice, index) => 
+                        `<button onclick="makeChoice(${index})">${choice.text}</button>`
+                    ).join('')}
+                </div>
+            `;
+        }
+        
+        function makeChoice(choiceIndex) {
+            const scene = scenes[currentScene];
+            const choice = scene.choices[choiceIndex];
+            
+            // Show feedback
+            const feedbackElement = document.getElementById('feedback');
+            feedbackElement.textContent = choice.feedback;
+            feedbackElement.style.color = choice.points >= 3 ? '#2e7d32' : choice.points >= 2 ? '#f57c00' : '#5d4037';
+            feedbackElement.classList.add('show');
+            
+            // Play sound effect (visual feedback)
+            createSoundEffect(choice.sound);
+            
+            points += choice.points;
+            updatePoints();
+            currentScene = choice.next;
+            updateProgress();
+            
+            setTimeout(() => {
+                feedbackElement.classList.remove('show');
+                showScene();
+            }, 1500);
+        }
+        
+        function createSoundEffect(type) {
+            const effects = {
+                happy: '🎉',
+                brave: '⚡',
+                kind: '💖',
+                excited: '🌟',
+                confident: '👑',
+                loving: '💝'
+            };
+            
+            if (effects[type]) {
+                const effect = document.createElement('div');
+                effect.textContent = effects[type];
+                effect.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    font-size: 3em;
+                    pointer-events: none;
+                    z-index: 1000;
+                    animation: soundEffect 1s ease-out forwards;
+                `;
+                document.body.appendChild(effect);
+                
+                setTimeout(() => effect.remove(), 1000);
+            }
+        }
+        
+        function updatePoints() {
+            document.getElementById('points').textContent = points;
+        }
+        
+        function updateProgress() {
+            const progress = ((currentScene + 1) / scenes.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+        }
+        
+        function showEnding() {
+            let ending = "";
+            let emoji = "";
+            let endingClass = "";
+            
+            if (points >= 18) {
+                ending = "🎊 ¡INCREÍBLE, SANTIAGO! 🎊<br><br>Fuiste súper valiente en tu primer día. Hiciste amigos, ayudaste a otros y mostraste un coraje extraordinario. ¡Eres un verdadero campeón de la escuela!";
+                emoji = "🏆";
+                endingClass = "mood-brave";
+            } else if (points >= 12) {
+                ending = "🌟 ¡MUY BIEN, SANTIAGO! 🌟<br><br>Tu primer día fue todo un éxito. Aunque sentiste nervios, lograste adaptarte y vivir una gran aventura. ¡Cada día serás más valiente!";
+                emoji = "⭐";
+                endingClass = "mood-happy";
+            } else {
+                ending = "🌱 ¡PERFECTO A TU MANERA, SANTIAGO! 🌱<br><br>Tu primer día fue especial y único. Todos necesitamos nuestro propio tiempo para sentirnos cómodos. ¡Mañana será aún más maravilloso!";
+                emoji = "🌟";
+                endingClass = "mood-happy";
+            }
+            
+            document.getElementById('game-content').innerHTML = `
+                <div class="story-text">${ending}</div>
+                <div class="emoji">${emoji}</div>
+                <div class="choices">
+                    <button onclick="location.reload()">🔄 ¡Vivir otra aventura!</button>
+                </div>
+            `;
+            
+            document.getElementById('mood').textContent = "¡Has completado tu aventura escolar! 🎓";
+            document.getElementById('mood').className = `character-mood ${endingClass}`;
+            
+            // Celebrate with floating hearts
+            celebrateEnding();
+        }
+        
+        function celebrateEnding() {
+            const container = document.getElementById('floating-elements');
+            const celebration = ['💖', '🎉', '⭐', '🏆', '🌈', '✨'];
+            
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const element = document.createElement('div');
+                    element.className = 'floating-item';
+                    element.textContent = celebration[Math.floor(Math.random() * celebration.length)];
+                    element.style.left = Math.random() * 100 + '%';
+                    element.style.top = '100%';
+                    element.style.animation = 'float 3s ease-out forwards';
+                    container.appendChild(element);
+                    
+                    setTimeout(() => element.remove(), 3000);
+                }, i * 200);
+            }
+        }
+        
+        // Add sound effect keyframe
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes soundEffect {
+                0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+                50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; }
+                100% { transform: translate(-50%, -50%) scale(2) translateY(-50px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize floating elements on load
+        window.addEventListener('load', createFloatingElements);
+    </script>
+</body>
+</html>

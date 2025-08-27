@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Compañero del Campo - Juego Interactivo</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            color: #f4f1e8;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #f4e4a6;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .game-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            border-left: 5px solid #f4e4a6;
+        }
+        
+        .game-title {
+            font-size: 1.5em;
+            color: #f4e4a6;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background: #8b4513;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #a0522d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            min-height: 50px;
+            font-style: italic;
+        }
+        
+        .mood-meter {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .mood-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffaa44, #44ff44);
+            width: 50%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .companion {
+            text-align: center;
+            font-size: 3em;
+            margin: 20px 0;
+        }
+        
+        .story-part {
+            background: rgba(139, 69, 19, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #f4e4a6;
+        }
+        
+        input[type="text"] {
+            width: 70%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .memory-card {
+            aspect-ratio: 1;
+            background: #8b4513;
+            border: none;
+            border-radius: 8px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .memory-card.flipped {
+            background: #f4e4a6;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌾 El Compañero del Campo 🌾</h1>
+        
+        <div class="companion" id="companion">🐕</div>
+        
+        <div>
+            <strong>Ánimo de Mateo:</strong>
+            <div class="mood-meter">
+                <div class="mood-fill" id="moodFill"></div>
+            </div>
+            <span id="moodText">Neutral</span>
+        </div>
+
+        <!-- Juego 1: Conversaciones con el Compañero -->
+        <div class="game-section">
+            <div class="game-title">💭 Conversa con tu Compañero Peludo</div>
+            <p>Tu perro imaginario te escucha siempre. Cuéntale algo:</p>
+            <input type="text" id="dogTalk" placeholder="¿Qué le quieres contar a tu compañero?" />
+            <button onclick="talkToDog()">Hablar</button>
+            <div class="result" id="dogResponse">Tu compañero mueve la cola esperando que le cuentes algo...</div>
+        </div>
+
+        <!-- Juego 2: Creador de Historias del Pueblo -->
+        <div class="game-section">
+            <div class="game-title">📚 El Contador de Historias</div>
+            <p>Crea historias sobre los antiguos habitantes del pueblo:</p>
+            <button onclick="generateStory()">Nueva Historia</button>
+            <div class="result" id="storyResult">Presiona el botón para generar una historia...</div>
+        </div>
+
+        <!-- Juego 3: Juego de Memoria Rural -->
+        <div class="game-section">
+            <div class="game-title">🧩 Memoria del Campo</div>
+            <p>Encuentra las parejas de elementos rurales:</p>
+            <button onclick="startMemoryGame()">Nuevo Juego</button>
+            <div class="memory-grid" id="memoryGrid"></div>
+            <div class="result" id="memoryResult">Presiona "Nuevo Juego" para empezar</div>
+        </div>
+
+        <!-- Juego 4: Jardinero Virtual -->
+        <div class="game-section">
+            <div class="game-title">🌱 Tu Jardín Virtual</div>
+            <p>Cultiva plantas para alegrar el día:</p>
+            <button onclick="plantSeed()">Plantar Semilla</button>
+            <button onclick="waterGarden()">Regar Jardín</button>
+            <div class="result" id="gardenResult">Tu jardín está esperando...</div>
+        </div>
+
+        <!-- Juego 5: Adivina el Sonido -->
+        <div class="game-section">
+            <div class="game-title">👂 ¿Qué Escuchas?</div>
+            <p>Imagina los sonidos que podrían alegrar el silencio:</p>
+            <button onclick="hearSound()">Escuchar</button>
+            <div class="result" id="soundResult">El silencio espera ser llenado de vida...</div>
+        </div>
+    </div>
+
+    <script>
+        let mood = 50; // Estado de ánimo inicial
+        let garden = [];
+        let memoryCards = [];
+        let flippedCards = [];
+
+        const dogResponses = [
+            "🐕 *Tu compañero ladra suavemente y se acerca* Parece que entiende perfectamente lo que sientes.",
+            "🐕 *Inclina la cabeza y mueve la cola* Sus ojos brillan con comprensión y lealtad.",
+            "🐕 *Se sienta a tu lado y apoya su cabeza en tu pierna* No necesita palabras para consolarte.",
+            "🐕 *Corre en círculos de alegría* ¡Tu compañero está feliz de escucharte!",
+            "🐕 *Te trae un palo imaginario* Quiere jugar contigo para levantarte el ánimo."
+        ];
+
+        const storyPrompts = [
+            "Don Evaristo era conocido por su habilidad para predecir el clima solo mirando las nubes...",
+            "La señora Remedios tenía un jardín secreto donde crecían las flores más hermosas del pueblo...",
+            "El joven Carlos soñaba con ser músico, pero su guitarra solo sonaba al atardecer...",
+            "La casa abandonada de los Morales guardaba un tesoro que solo los niños podían encontrar...",
+            "Doña Esperanza cocinaba unos tamales tan deliciosos que atraían visitantes de pueblos lejanos...",
+            "El viejo nogal del centro del pueblo guardaba los secretos de tres generaciones...",
+            "Pedro el cartero conocía las historias de amor de todo el pueblo solo leyendo los sobres..."
+        ];
+
+        const sounds = [
+            "🎵 Escuchas el canto lejano de un mirlo que construye su nido en el mango.",
+            "💧 El sonido suave del agua corriendo por una acequia recién limpia.",
+            "🐄 El mugido contento de las vacas que regresan del pastoreo al atardecer.",
+            "🌬️ El susurro del viento que trae historias de otros pueblos.",
+            "🔔 Las campanas de la iglesia marcando las horas como lo han hecho por décadas.",
+            "👥 Las risas de niños jugando fútbol en el campo cercano.",
+            "🐓 El orgulloso canto de un gallo que anuncia un nuevo amanecer."
+        ];
+
+        const memoryItems = ['🌽', '🐄', '🌻', '🚜', '🐓', '🌾', '🏠', '🌳'];
+
+        function updateMood(change) {
+            mood = Math.max(0, Math.min(100, mood + change));
+            const moodFill = document.getElementById('moodFill');
+            const moodText = document.getElementById('moodText');
+            
+            moodFill.style.width = mood + '%';
+            
+            if (mood < 30) {
+                moodText.textContent = 'Triste';
+                document.getElementById('companion').textContent = '🐕‍🦺';
+            } else if (mood < 70) {
+                moodText.textContent = 'Neutral';
+                document.getElementById('companion').textContent = '🐕';
+            } else {
+                moodText.textContent = 'Feliz';
+                document.getElementById('companion').textContent = '🐕‍🦺';
+            }
+        }
+
+        function talkToDog() {
+            const input = document.getElementById('dogTalk');
+            const response = document.getElementById('dogResponse');
+            
+            if (input.value.trim()) {
+                response.innerHTML = dogResponses[Math.floor(Math.random() * dogResponses.length)];
+                updateMood(5);
+                input.value = '';
+            } else {
+                response.innerHTML = "🐕 *Tu compañero te mira esperando que le cuentes algo*";
+            }
+        }
+
+        function generateStory() {
+            const result = document.getElementById('storyResult');
+            const story = storyPrompts[Math.floor(Math.random() * storyPrompts.length)];
+            result.innerHTML = `<div class="story-part">${story}</div><p><em>Continúa la historia en tu mente... ¿qué crees que pasó después?</em></p>`;
+            updateMood(3);
+        }
+
+        function startMemoryGame() {
+            const grid = document.getElementById('memoryGrid');
+            const result = document.getElementById('memoryResult');
+            
+            // Crear parejas
+            memoryCards = [...memoryItems, ...memoryItems].sort(() => Math.random() - 0.5);
+            flippedCards = [];
+            
+            grid.innerHTML = '';
+            memoryCards.forEach((item, index) => {
+                const card = document.createElement('button');
+                card.className = 'memory-card';
+                card.textContent = '?';
+                card.onclick = () => flipCard(index, item, card);
+                grid.appendChild(card);
+            });
+            
+            result.textContent = 'Encuentra las parejas. ¡Buena suerte!';
+        }
+
+        function flipCard(index, item, cardElement) {
+            if (flippedCards.length < 2 && !cardElement.classList.contains('flipped')) {
+                cardElement.textContent = item;
+                cardElement.classList.add('flipped');
+                flippedCards.push({index, item, element: cardElement});
+                
+                if (flippedCards.length === 2) {
+                    setTimeout(checkMatch, 1000);
+                }
+            }
+        }
+
+        function checkMatch() {
+            const result = document.getElementById('memoryResult');
+            if (flippedCards[0].item === flippedCards[1].item) {
+                result.textContent = '¡Excelente! Encontraste una pareja.';
+                updateMood(4);
+                flippedCards = [];
+            } else {
+                flippedCards.forEach(card => {
+                    card.element.textContent = '?';
+                    card.element.classList.remove('flipped');
+                });
+                flippedCards = [];
+                result.textContent = 'No coinciden. ¡Inténtalo de nuevo!';
+            }
+        }
+
+        function plantSeed() {
+            const plants = ['🌱', '🌿', '🌻', '🌹', '🌺', '🌷'];
+            const newPlant = plants[Math.floor(Math.random() * plants.length)];
+            garden.push(newPlant);
+            
+            document.getElementById('gardenResult').innerHTML = 
+                `Has plantado una nueva semilla ${newPlant}!<br>Tu jardín: ${garden.join(' ')}`;
+            updateMood(3);
+        }
+
+        function waterGarden() {
+            if (garden.length > 0) {
+                document.getElementById('gardenResult').innerHTML = 
+                    `💧 Has regado tu jardín. Las plantas crecen felices!<br>Tu jardín: ${garden.join(' ')}`;
+                updateMood(2);
+            } else {
+                document.getElementById('gardenResult').innerHTML = 
+                    'Primero necesitas plantar algunas semillas 🌱';
+            }
+        }
+
+        function hearSound() {
+            const sound = sounds[Math.floor(Math.random() * sounds.length)];
+            document.getElementById('soundResult').innerHTML = sound;
+            updateMood(3);
+        }
+
+        // Inicializar el juego
+        updateMood(0);
+    </script>
+</body>
+</html>
