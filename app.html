@@ -1007,7 +1007,7 @@
             const content = document.getElementById('storyContent');
             const story = stories[storyId];
             
-            if (story) {
+            if (story && modal && content) {
                 content.innerHTML = story.content;
                 modal.style.display = 'block';
                 document.body.style.overflow = 'hidden';
@@ -1017,6 +1017,11 @@
         function openGame(gameId) {
             const modal = document.getElementById('gameModal');
             const content = document.getElementById('gameContent');
+            
+            if (!modal || !content) {
+                console.warn('Modal elements not found');
+                return;
+            }
             
             let gameContent = '';
             

@@ -26,6 +26,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: gradientRotate 3s ease infinite;
+    will-change: background-position;
 }
 
 .text-shine {
@@ -35,6 +36,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: textShine 2s linear infinite;
+    will-change: background-position;
 }
 
 /* Componentes de carga */
@@ -46,6 +48,7 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 20px auto;
+    will-change: transform;
 }
 
 @keyframes spin {

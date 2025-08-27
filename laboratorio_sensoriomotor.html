@@ -500,10 +500,10 @@
                 </canvas>
 
                 <div class="texture-controls">
-                    <button class="texture-btn" onclick="changeTexture('suave')">Textil Andino</button>
-                    <button class="texture-btn" onclick="changeTexture('rugoso')">Corteza Amazónica</button>
-                    <button class="texture-btn" onclick="changeTexture('arena')">Arena Costera</button>
-                    <button class="texture-btn" onclick="changeTexture('liso')">Cerámica Shuar</button>
+                    <button class="texture-btn" onclick="changeTexture('suave', this)">Textil Andino</button>
+                    <button class="texture-btn" onclick="changeTexture('rugoso', this)">Corteza Amazónica</button>
+                    <button class="texture-btn" onclick="changeTexture('arena', this)">Arena Costera</button>
+                    <button class="texture-btn" onclick="changeTexture('liso', this)">Cerámica Shuar</button>
                     <button class="texture-btn" onclick="clearCanvas()">Limpiar Lienzo</button>
                 </div>
             </div>
@@ -532,9 +532,9 @@
                 </div>
 
                 <div style="text-align: center; margin: 20px 0;">
-                    <button class="texture-btn" onclick="changeMovementStyle('ritual')">Danza Ritual</button>
-                    <button class="texture-btn" onclick="changeMovementStyle('celebracion')">Celebración</button>
-                    <button class="texture-btn" onclick="changeMovementStyle('meditacion')">Movimiento Meditativo</button>
+                    <button class="texture-btn" onclick="changeMovementStyle('ritual', this)">Danza Ritual</button>
+                    <button class="texture-btn" onclick="changeMovementStyle('celebracion', this)">Celebración</button>
+                    <button class="texture-btn" onclick="changeMovementStyle('meditacion', this)">Movimiento Meditativo</button>
                 </div>
             </div>
         </div>
@@ -589,7 +589,16 @@
                 const swatch = document.createElement('div');
                 swatch.className = 'color-swatch';
                 swatch.style.backgroundColor = color;
+                swatch.setAttribute('aria-label', `Seleccionar color ${color}`);
+                swatch.setAttribute('role', 'button');
+                swatch.setAttribute('tabindex', '0');
                 swatch.onclick = () => selectColor(color, swatch);
+                swatch.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectColor(color, swatch);
+                    }
+                };
                 if (index === 0) {
                     swatch.classList.add('active');
                     currentColor = color;
@@ -628,7 +637,16 @@
                 const swatch = document.createElement('div');
                 swatch.className = 'color-swatch';
                 swatch.style.backgroundColor = color;
+                swatch.setAttribute('aria-label', `Seleccionar color ${color}`);
+                swatch.setAttribute('role', 'button');
+                swatch.setAttribute('tabindex', '0');
                 swatch.onclick = () => selectColor(color, swatch);
+                swatch.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectColor(color, swatch);
+                    }
+                };
                 if (index === 0) {
                     swatch.classList.add('active');
                     currentColor = color;
@@ -675,7 +693,17 @@
         // Canvas para texturas
         function initializeCanvas() {
             const canvas = document.getElementById('textureCanvas');
+            if (!canvas) {
+                console.warn('Canvas element not found');
+                return;
+            }
+            
             const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.warn('Canvas context not available');
+                return;
+            }
+            
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
             
@@ -747,15 +775,27 @@
             isDrawing = false;
         }
 
-        function changeTexture(texture) {
+        function changeTexture(texture, element) {
             currentTexture = texture;
             document.querySelectorAll('.texture-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (element) {
+                element.classList.add('active');
+            }
         }
 
         function clearCanvas() {
             const canvas = document.getElementById('textureCanvas');
+            if (!canvas) {
+                console.warn('Canvas element not found');
+                return;
+            }
+            
             const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.warn('Canvas context not available');
+                return;
+            }
+            
             ctx.fillStyle = '#F8F4EC';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
@@ -805,25 +845,43 @@
             }, 2000);
         }
 
-        function changeMovementStyle(style) {
+        function changeMovementStyle(style, element) {
             movementStyle = style;
             document.querySelectorAll('.texture-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (element) {
+                element.classList.add('active');
+            }
         }
 
         // Funciones de reflexión
         function saveReflection() {
-            const text = document.getElementById('reflectionText').value;
+            const textElement = document.getElementById('reflectionText');
+            if (!textElement) {
+                showNotification('Error: No se pudo acceder al área de texto', 'warning');
+                return;
+            }
+            
+            const text = textElement.value;
             if (text.trim()) {
-                localStorage.setItem('sensoriomotor_reflection', text);
-                showNotification('Reflexión guardada exitosamente', 'success');
+                try {
+                    localStorage.setItem('sensoriomotor_reflection', text);
+                    showNotification('Reflexión guardada exitosamente', 'success');
+                } catch (error) {
+                    showNotification('Error al guardar la reflexión. Intenta de nuevo.', 'warning');
+                }
             } else {
                 showNotification('Por favor, escribe tu reflexión antes de guardar', 'warning');
             }
         }
 
         function shareReflection() {
-            const text = document.getElementById('reflectionText').value;
+            const textElement = document.getElementById('reflectionText');
+            if (!textElement) {
+                showNotification('Error: No se pudo acceder al área de texto', 'warning');
+                return;
+            }
+            
+            const text = textElement.value;
             if (text.trim()) {
                 showNotification('Funcionalidad de compartir en desarrollo. ¡Gracias por tu reflexión!', 'info');
             } else {
@@ -897,9 +955,16 @@
 
         // Cargar reflexión guardada
         window.addEventListener('load', function() {
-            const savedReflection = localStorage.getItem('sensoriomotor_reflection');
-            if (savedReflection) {
-                document.getElementById('reflectionText').value = savedReflection;
+            try {
+                const savedReflection = localStorage.getItem('sensoriomotor_reflection');
+                const reflectionElement = document.getElementById('reflectionText');
+                
+                if (savedReflection && reflectionElement) {
+                    reflectionElement.value = savedReflection;
+                }
+            } catch (error) {
+                // Error silenciado para no interrumpir la experiencia del usuario
+                console.warn('No se pudo cargar la reflexión guardada:', error);
             }
         });
     </script>

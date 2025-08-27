@@ -238,18 +238,24 @@
             mood = Math.max(0, Math.min(100, mood + change));
             const moodFill = document.getElementById('moodFill');
             const moodText = document.getElementById('moodText');
+            const companion = document.getElementById('companion');
+            
+            if (!moodFill || !moodText || !companion) {
+                console.warn('Mood elements not found');
+                return;
+            }
             
             moodFill.style.width = mood + '%';
             
             if (mood < 30) {
                 moodText.textContent = 'Triste';
-                document.getElementById('companion').textContent = '🐕‍🦺';
+                companion.textContent = '🐕‍🦺';
             } else if (mood < 70) {
                 moodText.textContent = 'Neutral';
-                document.getElementById('companion').textContent = '🐕';
+                companion.textContent = '🐕';
             } else {
                 moodText.textContent = 'Feliz';
-                document.getElementById('companion').textContent = '🐕‍🦺';
+                companion.textContent = '🐕‍🦺';
             }
         }
 
