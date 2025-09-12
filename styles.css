@@ -1,4 +1,29 @@
 /* ===========================
+   OPTIMIZACIONES DE RENDIMIENTO
+   =========================== */
+
+/* Carga crítica de fuentes */
+@font-display: swap;
+
+/* Optimización de animaciones */
+* {
+    will-change: auto;
+}
+
+.content-card:hover,
+.btn:hover,
+.hero-title {
+    will-change: transform;
+}
+
+/* Optimización para GPU */
+.floating-item,
+.content-card,
+.hero-section::before {
+    transform: translateZ(0);
+}
+
+/* ===========================
    VARIABLES CSS Y CONFIGURACIÓN GLOBAL
    =========================== */
 

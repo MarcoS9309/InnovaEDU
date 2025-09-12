@@ -556,6 +556,33 @@
         document.addEventListener('mousedown', function() {
             document.body.classList.remove('keyboard-navigation');
         });
+
+        // Registro del Service Worker para funcionalidad offline
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registrado con éxito:', registration);
+                        
+                        // Verificar si hay una nueva versión disponible
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Nueva versión disponible
+                                    if (confirm('Nueva versión disponible. ¿Actualizar ahora?')) {
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('Error al registrar SW:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
